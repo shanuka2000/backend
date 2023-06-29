@@ -1,6 +1,7 @@
 // importing
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 import upload from "./middleware/multerMiddleware.js";
 import Product from "./models/Product.js";
 
@@ -8,6 +9,7 @@ import Product from "./models/Product.js";
 const app = express();
 const port = process.env.PORT || 9000;
 app.use("/images", express.static("images"));
+app.use(cors());
 
 // middleware
 
@@ -25,7 +27,7 @@ mongoose
 //api routes
 
 // Create New Product
-app.post("/products", upload.array("images"), async (req, res) => {
+app.post("/new", upload.array("images"), async (req, res) => {
   const productDetails = req.body;
   const productImages = req.files;
 
@@ -52,7 +54,6 @@ app.get("/all", async (req, res) => {
   const convertedProducts = JSON.parse(
     JSON.stringify(products).replace(/\\/g, "/")
   );
-
   res.status(200).send(convertedProducts);
 });
 
