@@ -1,10 +1,13 @@
 // importing
 import express from "express";
 import mongoose from "mongoose";
+import upload from "./middleware/multerMiddleware.js";
+import Product from "./models/Product.js";
 
 // app config
 const app = express();
 const port = process.env.PORT || 9000;
+app.use("/images", express.static("images"));
 
 // middleware
 
@@ -20,6 +23,40 @@ mongoose
   });
 
 //api routes
+
+// Create New Product
+app.post("/products", upload.array("images"), async (req, res) => {
+  const productDetails = req.body;
+  const productImages = req.files;
+
+  const newProduct = new Product({
+    productName: productDetails.productName,
+    productDescription: productDetails.productDescription,
+    quantity: productDetails.quantity,
+    sku: productDetails.sku,
+    images: productImages.map((file) => file.path),
+  });
+
+  try {
+    const savedProduct = await newProduct.save();
+    res.status(201).json(savedProduct);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Find All Products
+app.get("/all", async (req, res) => {
+  const products = await Product.find();
+
+  const convertedProducts = JSON.parse(
+    JSON.stringify(products).replace(/\\/g, "/")
+  );
+
+  res.status(200).send(convertedProducts);
+});
+
+// Health Check Endpoint
 app.get("/", (req, res) => res.status(200).send("hello world"));
 
 // listne
