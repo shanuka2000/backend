@@ -26,6 +26,21 @@ mongoose
 
 //api routes
 
+// Delete one product
+app.delete("/remove/:id", async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.status(200).json("Product has been deleted...");
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Update product
+app.put("/update/:id", async (req, res) => {
+  // Need implementation
+});
+
 // Create New Product
 app.post("/new", upload.array("images"), async (req, res) => {
   const productDetails = req.body;
@@ -42,6 +57,21 @@ app.post("/new", upload.array("images"), async (req, res) => {
   try {
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Get one product
+app.get("/find/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    const convertedProduct = JSON.parse(
+      JSON.stringify(product).replace(/\\/g, "/")
+    );
+
+    res.status(200).send(convertedProduct);
   } catch (err) {
     res.status(500).json(err);
   }
